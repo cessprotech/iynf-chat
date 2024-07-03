@@ -24,8 +24,8 @@ import { MessageModel } from './schema/message.schema';
 import { OnlineModel } from './schema/online.schema';
 import { ChatGateway } from './app.gateway';
 import { GatewaySessionManager } from './chat.session';
-import { GController } from './g.controller';
-import { GService } from './g.service';
+// import { GController } from './g.controller';
+// import { GService } from './g.service';
 
 @Module({
   imports: [
@@ -57,11 +57,14 @@ import { GService } from './g.service';
     EventEmitModule,
   ],
 
-  controllers: [AppController, GController],
+  controllers: [
+    AppController, 
+    // GController
+  ],
 
   providers: [
     AppService,
-    GService,
+    // GService,
     ShutdownService,
     ClientMService,
     GatewaySessionManager,

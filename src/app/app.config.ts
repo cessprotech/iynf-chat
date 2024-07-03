@@ -62,8 +62,8 @@ export class AppEnvClass {
   // GOOGLE_CLIENT_SECRET = Joi.string().required();
   // GOOGLE_REDIRECT_URI = Joi.string().required();
   
-  API_KEY = Joi.string().required();
-  APP_ID = Joi.string().required();
+  // API_KEY = Joi.string().required();
+  // APP_ID = Joi.string().required();
 
 }
 

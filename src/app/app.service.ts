@@ -72,7 +72,36 @@ export class AppService {
   ) {
     const { page, limit, select, sort, ...rest } = query;
 
-    return await AppPipeline(this.chatModel).getAll(rest, paginateOptions);
+    // return await AppPipeline(this.chatModel).getAll(rest, paginateOptions);
+    const result = await AppPipeline(this.chatModel).getAll(rest, paginateOptions);
+
+    const updatedChats = await Promise.all(result.docs.map(async (chat) => {
+      const lastMessage = await this.getLastMessage(chat._id);  // Assuming chat._id is the chat identifier
+      const lastMessageTime = lastMessage ? lastMessage.createdAt : null;
+
+      return {
+        ...chat,
+        lastMessage: lastMessage ? lastMessage.content : null,  // Assuming 'content' field exists in messages
+        lastMessageTime,
+      };
+    }));
+
+    // Update the result with the new chat data
+    return {
+      ...result,
+      docs: updatedChats,
+    };
+  }
+
+  async getLastMessage(chatId: string) {
+    // Find the last message for the chat by sorting the messages by createdAt in descending order
+    return await this.chatModel.findOne({ _id: chatId })
+      .populate({
+        path: 'messages',
+        match: { blockedByRecipient: false },
+        options: { sort: { createdAt: -1 }, limit: 1 }  // Fetch only the last message
+      })
+      .then(chat => chat?.messages[0]);  // Return the first message if exists
   }
 
   async getOne(id: string, populateOptions: CustomPopulateOptions[] = []) {

@@ -75,33 +75,36 @@ export class AppService {
     // return await AppPipeline(this.chatModel).getAll(rest, paginateOptions);
     const result = await AppPipeline(this.chatModel).getAll(rest, paginateOptions);
 
-    const updatedChats = await Promise.all(result.docs.map(async (chat) => {
-      const lastMessage = await this.getLastMessage(chat._id);  // Assuming chat._id is the chat identifier
-      const lastMessageTime = lastMessage ? lastMessage.createdAt : null;
+    // Get chat IDs to fetch last messages in bulk
+    const chatIds = result.docs.map((chat: any) => chat._id);
 
+    // Retrieve last messages for all chats in one query
+    const lastMessages = await this.messageModel.aggregate([
+      { $match: { chatId: { $in: chatIds } } },
+      { $sort: { createdAt: -1 } },
+      { $group: { _id: "$chatId", text: { $first: "$text" }, createdAt: { $first: "$createdAt" } } }
+    ]);
+
+    // Map the last messages by chatId for quick access
+    const lastMessagesMap = lastMessages.reduce((map: any, message: any) => {
+      map[message._id] = message;
+      return map;
+    }, {});
+
+    // Update chats with their last message and time
+    const updatedChats = result.docs.map((chat: any) => {
+      const lastMessage = lastMessagesMap[chat._id] || {};
       return {
         ...chat,
-        lastMessage: lastMessage ? lastMessage.content : null,  // Assuming 'content' field exists in messages
-        lastMessageTime,
+        lastMessage: lastMessage.text || null,
+        lastMessageTime: lastMessage.createdAt || null,
       };
-    }));
+    });
 
-    // Update the result with the new chat data
     return {
       ...result,
       docs: updatedChats,
     };
-  }
-
-  async getLastMessage(chatId: string) {
-    // Find the last message for the chat by sorting the messages by createdAt in descending order
-    return await this.chatModel.findOne({ _id: chatId })
-      .populate({
-        path: 'messages',
-        match: { blockedByRecipient: false },
-        options: { sort: { createdAt: -1 }, limit: 1 }  // Fetch only the last message
-      })
-      .then(chat => chat?.messages[0]);  // Return the first message if exists
   }
 
   async getOne(id: string, populateOptions: CustomPopulateOptions[] = []) {

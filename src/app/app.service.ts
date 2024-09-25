@@ -76,7 +76,10 @@ export class AppService {
     const result = await AppPipeline(this.chatModel).getAll(rest, paginateOptions);
 
     // Get chat IDs to fetch last messages in bulk
-    const chatIds = result.docs.map((chat: any) => chat._id);
+    const chatIds = result.docs.map((chat: any) => chat.chatId);
+
+    console.log(chatIds);
+    
 
     // Retrieve last messages for all chats in one query
     const lastMessages = await this.messageModel.aggregate([

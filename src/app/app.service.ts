@@ -89,10 +89,7 @@ export class AppService {
     const lastMessagesMap = lastMessages.reduce((map: any, message: any) => {
       map[message._id] = message;
       return map;
-    }, {});
-
-    console.log('access', lastMessagesMap);
-    
+    }, {});   
 
     // Update chats with their last message and time
     const updatedChats = result.docs.map((chat: any) => {

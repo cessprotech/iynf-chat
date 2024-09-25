@@ -199,7 +199,6 @@ export class AppService {
   }
 
   async deleteMessage(messageId: string, chatId: string, userId: string) {
-    console.log('deletedid', userId);
     
     return await this.messageModel.findOneAndDelete({ messageId, chatId, authorId: userId });
   }

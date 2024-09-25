@@ -76,10 +76,7 @@ export class AppService {
     const result = await AppPipeline(this.chatModel).getAll(rest, paginateOptions);
 
     // Get chat IDs to fetch last messages in bulk
-    const chatIds = result.docs.map((chat: any) => chat.chatId);
-
-    console.log('chatids', chatIds);
-    
+    const chatIds = result.docs.map((chat: any) => chat.chatId); 
 
     // Retrieve last messages for all chats in one query
     const lastMessages = await this.messageModel.aggregate([
@@ -88,18 +85,18 @@ export class AppService {
       { $group: { _id: "$chatId", text: { $first: "$text" }, createdAt: { $first: "$createdAt" } } }
     ]);
 
-    console.log('last', lastMessages);
-    
-
     // Map the last messages by chatId for quick access
     const lastMessagesMap = lastMessages.reduce((map: any, message: any) => {
       map[message._id] = message;
       return map;
     }, {});
 
+    console.log('access', lastMessagesMap);
+    
+
     // Update chats with their last message and time
     const updatedChats = result.docs.map((chat: any) => {
-      const lastMessage = lastMessagesMap[chat._id] || {};
+      const lastMessage = lastMessagesMap[chat.chatId] || {};
       return {
         ...chat,
         lastMessage: lastMessage.text || null,

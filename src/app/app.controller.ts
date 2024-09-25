@@ -120,7 +120,7 @@ export class AppController {
   @Delete(':chatId/message/:messageId/delete')
   @Response(MESSAGE_RESPONSE.DELETE)
   async deleteMessage(@Param('messageId') messageId: string, @Param('chatId') chatId: string, @Req() req) {
-    const message = await this.appService.deleteMessage(messageId, chatId, req.user.userId);
+    const message = await this.appService.deleteMessage(messageId, chatId, req.user._id);
 
     return message;
   }

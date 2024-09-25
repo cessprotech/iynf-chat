@@ -78,7 +78,7 @@ export class AppService {
     // Get chat IDs to fetch last messages in bulk
     const chatIds = result.docs.map((chat: any) => chat.chatId);
 
-    console.log(chatIds);
+    console.log('chatids', chatIds);
     
 
     // Retrieve last messages for all chats in one query
@@ -87,6 +87,9 @@ export class AppService {
       { $sort: { createdAt: -1 } },
       { $group: { _id: "$chatId", text: { $first: "$text" }, createdAt: { $first: "$createdAt" } } }
     ]);
+
+    console.log('last', lastMessages);
+    
 
     // Map the last messages by chatId for quick access
     const lastMessagesMap = lastMessages.reduce((map: any, message: any) => {

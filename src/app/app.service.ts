@@ -96,8 +96,8 @@ export class AppService {
       const lastMessage = lastMessagesMap[chat.chatId] || {};
       return {
         ...chat,
-        lastMessage: lastMessage.text || "",
-        lastMessageTime: lastMessage.createdAt || "",
+        lastMessage: lastMessage.text || null,
+        lastMessageTime: lastMessage.createdAt || null,
       };
     });
 
